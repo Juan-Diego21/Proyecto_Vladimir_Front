@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-const ProductForm = ({ product, onSubmit, onCancel }) => {
+const ProductForm = ({ product, onSubmit, onCancel, loading = false }) => {
   const [formData, setFormData] = useState({
-    nombreProducto: '',
-    idProveedor: '',
-    precioUnitario: '',
-    tipoPresentacion: '',
-    estaDescontinuado: false
+    nombreProducto: "",
+    idProveedor: "",
+    precioUnitario: "",
+    tipoPresentacion: "", // Ahora será texto libre
+    estaDescontinuado: false,
   });
 
   const [errors, setErrors] = useState({});
@@ -15,25 +15,25 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   useEffect(() => {
     if (product) {
       setFormData({
-        nombreProducto: product.nombreProducto || '',
-        idProveedor: product.idProveedor || '',
-        precioUnitario: product.precioUnitario || '',
-        tipoPresentacion: product.tipoPresentacion || '',
-        estaDescontinuado: product.estaDescontinuado || false
+        nombreProducto: product.nombreProducto || "",
+        idProveedor: product.idProveedor || "",
+        precioUnitario: product.precioUnitario || "",
+        tipoPresentacion: product.tipoPresentacion || "",
+        estaDescontinuado: product.estaDescontinuado || false,
       });
     }
   }, [product]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
+
     // Limpiar error del campo al modificar
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -41,23 +41,23 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     const newErrors = {};
 
     if (!formData.nombreProducto.trim()) {
-      newErrors.nombreProducto = 'El nombre del producto es requerido';
+      newErrors.nombreProducto = "El nombre del producto es requerido";
     }
 
     if (!formData.idProveedor) {
-      newErrors.idProveedor = 'El ID del proveedor es requerido';
+      newErrors.idProveedor = "El ID del proveedor es requerido";
     } else if (isNaN(formData.idProveedor)) {
-      newErrors.idProveedor = 'Debe ser un número válido';
+      newErrors.idProveedor = "Debe ser un número válido";
     }
 
     if (!formData.precioUnitario) {
-      newErrors.precioUnitario = 'El precio es requerido';
+      newErrors.precioUnitario = "El precio es requerido";
     } else if (isNaN(formData.precioUnitario) || formData.precioUnitario <= 0) {
-      newErrors.precioUnitario = 'Debe ser un precio válido';
+      newErrors.precioUnitario = "Debe ser un precio válido mayor a 0";
     }
 
-    if (!formData.tipoPresentacion) {
-      newErrors.tipoPresentacion = 'La presentación es requerida';
+    if (!formData.tipoPresentacion.trim()) {
+      newErrors.tipoPresentacion = "El tipo de presentación es requerido";
     }
 
     setErrors(newErrors);
@@ -66,12 +66,12 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       onSubmit({
         ...formData,
         idProveedor: parseInt(formData.idProveedor),
-        precioUnitario: parseFloat(formData.precioUnitario)
+        precioUnitario: parseFloat(formData.precioUnitario),
       });
     }
   };
@@ -88,9 +88,9 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
           name="nombreProducto"
           value={formData.nombreProducto}
           onChange={handleChange}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none 
-            focus:ring-2 focus:ring-blue-500 ${
-            errors.nombreProducto ? 'border-red-500' : 'border-gray-300'
+          disabled={loading}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 ${
+            errors.nombreProducto ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Ej: Cerveza Lager"
         />
@@ -109,9 +109,9 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
           name="idProveedor"
           value={formData.idProveedor}
           onChange={handleChange}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none 
-            focus:ring-2 focus:ring-blue-500 ${
-            errors.idProveedor ? 'border-red-500' : 'border-gray-300'
+          disabled={loading}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 ${
+            errors.idProveedor ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Ej: 101"
         />
@@ -131,9 +131,9 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
           name="precioUnitario"
           value={formData.precioUnitario}
           onChange={handleChange}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none 
-            focus:ring-2 focus:ring-blue-500 ${
-            errors.precioUnitario ? 'border-red-500' : 'border-gray-300'
+          disabled={loading}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 ${
+            errors.precioUnitario ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Ej: 2.50"
         />
@@ -142,27 +142,22 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         )}
       </div>
 
-      {/* Tipo de Presentación */}
+      {/* Tipo de Presentación (Ahora input de texto) */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Tipo de Presentación *
         </label>
-        <select
+        <input
+          type="text"
           name="tipoPresentacion"
           value={formData.tipoPresentacion}
           onChange={handleChange}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none 
-            focus:ring-2 focus:ring-blue-500 ${
-            errors.tipoPresentacion ? 'border-red-500' : 'border-gray-300'
+          disabled={loading}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 ${
+            errors.tipoPresentacion ? "border-red-500" : "border-gray-300"
           }`}
-        >
-          <option value="">Seleccionar presentación</option>
-          <option value="Individual">Individual</option>
-          <option value="Six pack">Six pack</option>
-          <option value="Caja">Caja</option>
-          <option value="Botella">Botella</option>
-          <option value="Lata">Lata</option>
-        </select>
+          placeholder="Ej: Six pack, Botella, Caja, etc."
+        />
         {errors.tipoPresentacion && (
           <p className="text-red-500 text-sm mt-1">{errors.tipoPresentacion}</p>
         )}
@@ -175,7 +170,8 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
           name="estaDescontinuado"
           checked={formData.estaDescontinuado}
           onChange={handleChange}
-          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          disabled={loading}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:bg-gray-100"
         />
         <label className="ml-2 block text-sm text-gray-700">
           Producto descontinuado
@@ -187,17 +183,18 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md 
-            hover:bg-gray-400 transition-colors"
+          disabled={loading}
+          className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md 
-            hover:bg-blue-600 transition-colors"
+          disabled={loading}
+          className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
         >
-          {product ? 'Actualizar' : 'Crear'} Producto
+          {loading ? "Procesando..." : product ? "Actualizar" : "Crear"}{" "}
+          Producto
         </button>
       </div>
     </form>
